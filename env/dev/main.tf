@@ -58,6 +58,7 @@ module "aks" {
   depends_on = [module.aks_subnet]
 }
 
+# TO SELF HOSTED GITHUB RUNNER VNET
 module "private_dns_zone_vnet_link" {
   source                = "../../modules/private_dns_zone_vnet_link"
   name                  = data.azurerm_virtual_network.mgm_vnet.name
@@ -74,5 +75,4 @@ module "nginx_ingress" {
   k8s_client_certificate     = module.aks.host
   k8s_client_key             = module.aks.host
   k8s_cluster_ca_certificate = module.aks.host
-  depends_on = [module.private_dns_zone_vnet_link]
 }
