@@ -30,12 +30,6 @@ variable "private_cluster_enabled" {
   default     = true
 }
 
-variable "identity" {
-  description = "(Required) Specifies the type of Managed Service Identity that should be configured on this Kubernetes Cluster. Possible values are SystemAssigned or UserAssigned."
-  type        = string
-  default     = "SystemAssigned"
-}
-
 variable "dns_prefix" {
   description = "(Optional) Specifies the DNS prefix to use with private clusters. Changing this forces a new resource to be created."
   type        = string
@@ -57,7 +51,13 @@ variable "network_plugin" {
   default     = "azure"
 }
 
-
+variable "identity" {
+  description = "(Required) Specifies the type of Managed Service Identity that should be configured on this Kubernetes Cluster. Possible values are SystemAssigned or UserAssigned."
+  type        = list(object({
+    type = optional(string, "SystemAssigned")
+    identity_ids = optional(list(string))
+  }))
+}
 
 
 

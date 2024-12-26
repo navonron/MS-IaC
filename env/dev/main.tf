@@ -43,6 +43,20 @@ module "vnet_peering_aks_to_mgm" {
   depends_on = [module.vnet]
 }
 
+module "aks_managed_identity" {
+  source              = "../../modules/managed_identity"
+  name                = "${var.env}-aks-mi"
+  location            = "North Europe"
+  resource_group_name = module.resource_group.name
+}
+
+module "aks_role_assignment" {
+  source               = "../../modules/role_assignment"
+  scope                = module.resource_group.id
+  role_definition_name = "Reader"
+  principal_id         = module.aks_managed_identity.principal_id
+}
+
 module "aks" {
   source              = "../../modules/aks"
   name                = "${var.env}-aks"
@@ -55,6 +69,10 @@ module "aks" {
   }
   service_cidr = cidrsubnet(var.address_space, 8, 1)
   dns_service_ip = cidrhost(cidrsubnet(var.address_space, 8, 1), 4)
+  identity = [{
+    type = "UserAssigned"
+    identity_ids = [module.aks_managed_identity.principal_id]
+  }]
   depends_on = [module.aks_subnet]
 }
 
@@ -67,8 +85,7 @@ module "aks_nsg" {
   subnet_id           = module.aks_subnet.id
 }
 
-
-module "nsg_rule" {
+module "aks_nsg_rule" {
   source = "../../modules/nsg_rule"
   nsg_rules = [
     {
@@ -82,14 +99,13 @@ module "nsg_rule" {
 }
 
 # TO SELF HOSTED GITHUB RUNNER VNET
-module "private_dns_zone_vnet_link" {
+module "aks_private_dns_zone_vnet_link" {
   source                = "../../modules/private_dns_zone_vnet_link"
   name                  = data.azurerm_virtual_network.mgm_vnet.name
   resource_group_name   = module.aks.aks_resources_rg
   private_dns_zone_name = regex("^[^.]+\\.(.*)", module.aks.private_fqdn)[0]
   virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
 }
-
 
 module "nginx_ingress" {
   source                     = "../../modules/nginx_ingress"

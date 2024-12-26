@@ -19,6 +19,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   identity {
-    type = var.identity
+    type         = var.identity.type
+    identity_ids = var.identity.identity_ids
   }
 }
