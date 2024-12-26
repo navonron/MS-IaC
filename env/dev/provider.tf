@@ -9,6 +9,10 @@ terraform {
       version = "~>3.0"
     }
   }
+  backend "azurerm" {
+    use_oidc             = true
+    subscription_id      = var.subscription_id
+  }
 }
 
 provider "azurerm" {
