@@ -2,10 +2,6 @@ output "private_fqdn" {
   value = azurerm_kubernetes_cluster.aks.private_fqdn
 }
 
-output "dns_prefix_private_cluster" {
-  value = azurerm_kubernetes_cluster.aks.dns_prefix_private_cluster
-}
-
 output "host" {
   value = azurerm_kubernetes_cluster.aks.kube_config[0].host
 }

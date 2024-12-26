@@ -63,7 +63,7 @@ module "private_dns_zone_vnet_link" {
   source                = "../../modules/private_dns_zone_vnet_link"
   name                  = data.azurerm_virtual_network.mgm_vnet.name
   resource_group_name   = module.resource_group.name
-  private_dns_zone_name = trimprefix(module.aks.private_fqdn, module.aks.dns_prefix_private_cluster)
+  private_dns_zone_name = regex("^[^.]+\\.(.*)", module.aks.private_fqdn)[0]
   virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
   depends_on = [module.aks]
 }
