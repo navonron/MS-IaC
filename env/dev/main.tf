@@ -72,13 +72,6 @@ module "aks" {
   }
 }
 
-module "aks_role_assignment_on_aks_rg" {
-  source               = "../../modules/role_assignment"
-  scope                = module.aks.aks_resources_rg_id
-  role_definition_name = "Contributor"
-  principal_id         = module.aks_managed_identity.principal_id
-}
-
 # ALLOW ACCESS FROM SELF HOSTED GITHUB RUNNER TO AKS
 module "aks_nsg" {
   source              = "../../modules/nsg"
