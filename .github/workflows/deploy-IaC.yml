@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Terraform Apply
-        run: terraform destroy
+        run: terraform destroy -auto-approve
 
 
 
