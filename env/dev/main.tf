@@ -16,7 +16,7 @@ module "aks_subnet" {
   name                 = "${var.env}-aks-snet"
   resource_group_name  = module.resource_group.name
   virtual_network_name = module.spoke_vnet.name
-  address_prefixes = [cidrsubnet(var.address_space, 8, 0)]
+  address_prefixes = [cidrsubnet(var.spoke_vnet_address_space, 8, 0)]
 }
 
 data "azurerm_virtual_network" "mgm_vnet" {
@@ -64,8 +64,8 @@ module "aks" {
     name           = "np001"
     vnet_subnet_id = module.aks_subnet.id
   }
-  service_cidr = cidrsubnet(var.address_space, 8, 1)
-  dns_service_ip = cidrhost(cidrsubnet(var.address_space, 8, 1), 4)
+  service_cidr = cidrsubnet(var.spoke_vnet_address_space, 8, 1)
+  dns_service_ip = cidrhost(cidrsubnet(var.spoke_vnet_address_space, 8, 1), 4)
   identity = {
     type = "UserAssigned"
     identity_ids = [module.aks_managed_identity.id]
