@@ -50,7 +50,7 @@ module "aks_managed_identity" {
 module "aks_role_assignment_on_spoke_vnet" {
   source               = "../../modules/role_assignment"
   scope                = module.spoke_vnet.id
-  role_definition_name = "Reader"
+  role_definition_name = "Contributor"
   principal_id         = module.aks_managed_identity.principal_id
 }
 
