@@ -69,10 +69,10 @@ module "aks" {
   }
   service_cidr = cidrsubnet(var.address_space, 8, 1)
   dns_service_ip = cidrhost(cidrsubnet(var.address_space, 8, 1), 4)
-  identity = [{
+  identity = {
     type = "UserAssigned"
     identity_ids = [module.aks_managed_identity.principal_id]
-  }]
+  }
   depends_on = [module.aks_subnet]
 }
 

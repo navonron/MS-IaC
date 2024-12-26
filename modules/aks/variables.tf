@@ -53,10 +53,10 @@ variable "network_plugin" {
 
 variable "identity" {
   description = "(Required) Specifies the type of Managed Service Identity that should be configured on this Kubernetes Cluster. Possible values are SystemAssigned or UserAssigned."
-  type        = list(object({
+  type        = object({
     type = optional(string, "SystemAssigned")
     identity_ids = optional(list(string))
-  }))
+  })
 }
 
 
