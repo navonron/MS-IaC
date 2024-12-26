@@ -17,7 +17,7 @@ variable "resource_group_name" {
 variable "size" {
   description = "(Required) The SKU which should be used for this Virtual Machine, such as Standard_F2."
   type        = string
-  default     = "Standard_F2"
+  default     = "Standard_DS1_v2"
 }
 
 variable "admin_username" {
@@ -57,7 +57,7 @@ variable "source_image" {
   default = {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "24_04-lts"
+    sku       = "19_10-daily-gen2"
     version   = "latest"
   }
 }

@@ -30,6 +30,7 @@ module "aks" {
   }
   service_cidr = cidrsubnet(var.address_space, 8, 1)
   dns_service_ip = cidrhost(cidrsubnet(var.address_space, 8, 1), 4)
+  nginx_ingress_name = "${var.env}-ingress"
 }
 
 module "connectivity_subnet" {
