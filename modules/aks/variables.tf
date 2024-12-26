@@ -57,53 +57,6 @@ variable "network_plugin" {
   default     = "azure"
 }
 
-variable "nginx_ingress_name" {
-  type = string
-}
-
-variable "nginx_ingress_namespace" {
-  type    = string
-  default = "ingress-nginx"
-}
-
-variable "nginx_ingress_chart" {
-  type    = string
-  default = "ingress-nginx"
-}
-
-variable "nginx_ingress_repository" {
-  type    = string
-  default = "https://kubernetes.github.io/ingress-nginx"
-}
-
-variable "nginx_ingress_version" {
-  type    = string
-  default = "4.7.1"
-}
-
-variable "nginx_ingress_create_namespace" {
-  type    = bool
-  default = true
-}
-
-variable "nginx_ingress_values" {
-  type = list(string)
-  default = [
-    <<EOF
-controller:
-  service:
-    annotations:
-      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
-    type: LoadBalancer
-  nodeSelector:
-    "kubernetes.io/os": "linux"
-  tolerations:
-  - key: "node-role.kubernetes.io/control-plane"
-    operator: "Exists"
-    effect: "NoSchedule"
-EOF
-  ]
-}
 
 
 

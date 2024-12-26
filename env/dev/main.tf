@@ -43,7 +43,6 @@ module "vnet_peering_aks_to_mgm" {
   depends_on = [module.vnet]
 }
 
-
 module "aks" {
   source              = "../../modules/aks"
   name                = "${var.env}-aks"
@@ -56,6 +55,24 @@ module "aks" {
   }
   service_cidr = cidrsubnet(var.address_space, 8, 1)
   dns_service_ip = cidrhost(cidrsubnet(var.address_space, 8, 1), 4)
-  nginx_ingress_name = "${var.env}-ingress"
+  depends_on = [module.aks_subnet]
 }
 
+module "private_dns_zone_vnet_link" {
+  source                = "../../modules/private_dns_zone_vnet_link"
+  name                  = data.azurerm_virtual_network.mgm_vnet.name
+  resource_group_name   = module.resource_group.name
+  private_dns_zone_name = module.aks.private_fqdn
+  virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
+  depends_on = [module.aks]
+}
+
+module "nginx_ingress" {
+  source                     = "../../modules/nginx_ingress"
+  name                       = "${var.env}-ingress"
+  k8s_host                   = module.aks.host
+  k8s_client_certificate     = module.aks.host
+  k8s_client_key             = module.aks.host
+  k8s_cluster_ca_certificate = module.aks.host
+  depends_on = [module.private_dns_zone_vnet_link]
+}
