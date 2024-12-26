@@ -2,6 +2,10 @@ output "private_fqdn" {
   value = azurerm_kubernetes_cluster.aks.private_fqdn
 }
 
+output "aks_resources_rg" {
+  value = azurerm_kubernetes_cluster.aks.node_resource_group
+}
+
 output "host" {
   value = azurerm_kubernetes_cluster.aks.kube_config[0].host
 }
