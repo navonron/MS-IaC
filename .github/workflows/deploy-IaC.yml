@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve "./main.tfplan"
+        run: terraform destroy
 
 
 
