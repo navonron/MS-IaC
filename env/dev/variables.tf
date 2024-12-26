@@ -17,3 +17,11 @@ variable "mgm_rg_name" {
 variable "subscription_id" {
   type = string
 }
+
+variable "aks_location" {
+  type = string
+}
+
+variable "spoke_vnet_address_space" {
+  type = string
+}

@@ -3,21 +3,20 @@ module "resource_group" {
   name   = "${var.env}-rg"
 }
 
-module "vnet" {
+module "spoke_vnet" {
   source              = "../../modules/vnet"
   name                = "${var.env}-vnet"
-  location            = "North Europe"
+  location            = var.aks_location
   resource_group_name = module.resource_group.name
-  address_space = [var.address_space]
+  address_space = [var.spoke_vnet_address_space]
 }
 
 module "aks_subnet" {
   source               = "../../modules/snet"
   name                 = "${var.env}-aks-snet"
   resource_group_name  = module.resource_group.name
-  virtual_network_name = module.vnet.name
+  virtual_network_name = module.spoke_vnet.name
   address_prefixes = [cidrsubnet(var.address_space, 8, 0)]
-  depends_on = [module.vnet]
 }
 
 data "azurerm_virtual_network" "mgm_vnet" {
@@ -27,26 +26,24 @@ data "azurerm_virtual_network" "mgm_vnet" {
 
 module "vnet_peering_mgm_to_aks" {
   source              = "../../modules/vnet_peering"
-  name                = "mgm_to_aks"
+  name                = "mgm_to_${var.env}"
   resource_group_name = data.azurerm_virtual_network.mgm_vnet.resource_group_name
   source_vnet_name    = data.azurerm_virtual_network.mgm_vnet.name
-  remote_vnet_id      = module.vnet.id
-  depends_on = [module.vnet]
+  remote_vnet_id      = module.spoke_vnet.id
 }
 
 module "vnet_peering_aks_to_mgm" {
   source              = "../../modules/vnet_peering"
-  name                = "aks_to_mgm"
+  name                = "${var.env}_to_mgm"
   resource_group_name = module.resource_group.name
-  source_vnet_name    = module.vnet.name
+  source_vnet_name    = module.spoke_vnet.name
   remote_vnet_id      = data.azurerm_virtual_network.mgm_vnet.id
-  depends_on = [module.vnet]
 }
 
 module "aks_managed_identity" {
   source              = "../../modules/managed_identity"
   name                = "${var.env}-aks-mi"
-  location            = "North Europe"
+  location            = var.aks_location
   resource_group_name = module.resource_group.name
 }
 
@@ -60,7 +57,7 @@ module "aks_role_assignment" {
 module "aks" {
   source              = "../../modules/aks"
   name                = "${var.env}-aks"
-  location            = "North Europe"
+  location            = var.aks_location
   resource_group_name = module.resource_group.name
   dns_prefix          = "${var.env}aks"
   default_node_pool = {
@@ -73,14 +70,13 @@ module "aks" {
     type = "UserAssigned"
     identity_ids = [module.aks_managed_identity.id]
   }
-  depends_on = [module.aks_subnet]
 }
 
 # ALLOW ACCESS FROM SELF HOSTED GITHUB RUNNER TO AKS
 module "aks_nsg" {
   source              = "../../modules/nsg"
   name                = "${var.env}-aks-nsg"
-  location            = "North Europe"
+  location            = var.aks_location
   resource_group_name = module.aks.aks_resources_rg
   subnet_id           = module.aks_subnet.id
 }
