@@ -72,7 +72,7 @@ module "nginx_ingress" {
   source                     = "../../modules/nginx_ingress"
   name                       = "${var.env}-ingress"
   k8s_host                   = module.aks.host
-  k8s_client_certificate     = module.aks.host
-  k8s_client_key             = module.aks.host
-  k8s_cluster_ca_certificate = module.aks.host
+  k8s_client_certificate     = module.aks.client_certificate
+  k8s_client_key             = module.aks.client_key
+  k8s_cluster_ca_certificate = module.aks.cluster_ca_certificate
 }
