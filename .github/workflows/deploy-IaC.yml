@@ -15,6 +15,7 @@ env:
   BACKEND_AZURE_RESOURCE_GROUP_NAME: ${{ secrets.BACKEND_AZURE_RESOURCE_GROUP_NAME }}
   BACKEND_AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.BACKEND_AZURE_STORAGE_ACCOUNT_NAME }}
   BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: ${{ secrets.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME }}
+  BACKEND_AZURE_STORAGE_ACCOUNT_ACCESS_KEY: ${{ secrets.BACKEND_AZURE_STORAGE_ACCOUNT_ACCESS_KEY }}
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   TF_VAR_subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
@@ -42,6 +43,7 @@ jobs:
             -backend-config="resource_group_name=${{ secrets.BACKEND_AZURE_RESOURCE_GROUP_NAME }}" \
             -backend-config="storage_account_name=${{ secrets.BACKEND_AZURE_STORAGE_ACCOUNT_NAME }}" \
             -backend-config="container_name=${{ secrets.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME }}" \
+            -backend-config="access_key=${{ secrets.BACKEND_AZURE_STORAGE_ACCOUNT_ACCESS_KEY }}" \
             -backend-config="key=terraform.tfstate"
 
       - name: Terraform Validate
