@@ -58,6 +58,29 @@ module "aks" {
   depends_on = [module.aks_subnet]
 }
 
+# ALLOW ACCESS FROM SELF HOSTED GITHUB RUNNER TO AKS
+module "aks_nsg" {
+  source              = "../../modules/nsg"
+  name                = "${var.env}-aks-nsg"
+  location            = "North Europe"
+  resource_group_name = module.resource_group.name
+  subnet_id           = module.aks_subnet.id
+}
+
+
+module "nsg_rule" {
+  source = "../../modules/nsg_rule"
+  nsg_rules = [
+    {
+      name                        = "allow-acess-for-github-runner"
+      priority                    = 100
+      direction                   = "Inbound"
+      resource_group_name         = module.aks.aks_resources_rg
+      network_security_group_name = module.aks_nsg.name
+    }
+  ]
+}
+
 # TO SELF HOSTED GITHUB RUNNER VNET
 module "private_dns_zone_vnet_link" {
   source                = "../../modules/private_dns_zone_vnet_link"
@@ -66,6 +89,7 @@ module "private_dns_zone_vnet_link" {
   private_dns_zone_name = regex("^[^.]+\\.(.*)", module.aks.private_fqdn)[0]
   virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
 }
+
 
 module "nginx_ingress" {
   source                     = "../../modules/nginx_ingress"
