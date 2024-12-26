@@ -51,9 +51,9 @@ module "nic" {
 }
 
 module "ssh_public_key" {
-  source              = "../../modules/ssh_public_key"
-  name                = "${var.env}-linux-vm-pk"
-  parent_id = module.resource_group.name
+  source    = "../../modules/ssh_public_key"
+  name      = "${var.env}-linux-vm-pk"
+  parent_id = module.resource_group.id
 }
 
 module "linux_vm" {
@@ -61,5 +61,5 @@ module "linux_vm" {
   name                = "${var.env}-linux-vm-pk"
   resource_group_name = module.resource_group.name
   network_interface_ids = [module.nic.id]
-  public_key = module.ssh_public_key.public_key
+  public_key          = module.ssh_public_key.public_key
 }

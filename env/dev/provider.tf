@@ -4,10 +4,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "4.14.0"
     }
-    azapi = {
-      source = "Azure/azapi"
-      version = "2.1.0"
-    }
     random = {
       source  = "hashicorp/random"
       version = "~>3.0"
@@ -20,5 +16,3 @@ provider "azurerm" {
   subscription_id = "85c1fede-d660-405e-b3ed-ad1ee0e9f3f7"
   # client_id = ""
 }
-
-provider "azapi" {}
