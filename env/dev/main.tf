@@ -7,7 +7,7 @@ module "vnet" {
   source              = "../../modules/vnet"
   name                = "${var.env}-vnet"
   resource_group_name = module.resource_group.name
-  address_space = [var.address_space]
+  address_space       = [var.address_space]
 }
 
 module "aks_subnet" {
@@ -15,8 +15,8 @@ module "aks_subnet" {
   name                 = "${var.env}-aks-snet"
   resource_group_name  = module.resource_group.name
   virtual_network_name = module.vnet.name
-  address_prefixes = [cidrsubnet(var.address_space, 8, 0)]
-  depends_on = [module.vnet]
+  address_prefixes     = [cidrsubnet(var.address_space, 8, 0)]
+  depends_on           = [module.vnet]
 }
 
 module "aks" {
@@ -28,8 +28,8 @@ module "aks" {
     name           = "np001"
     vnet_subnet_id = module.aks_subnet.id
   }
-  service_cidr = cidrsubnet(var.address_space, 8, 1)
-  dns_service_ip = cidrhost(cidrsubnet(var.address_space, 8, 1), 4)
+  service_cidr       = cidrsubnet(var.address_space, 8, 1)
+  dns_service_ip     = cidrhost(cidrsubnet(var.address_space, 8, 1), 4)
   nginx_ingress_name = "${var.env}-ingress"
 }
 
@@ -44,7 +44,7 @@ module "vnet_peering_mgm_to_aks" {
   resource_group_name = module.resource_group.name
   source_vnet_name    = module.vnet.name
   remote_vnet_id      = data.azurerm_virtual_network.mgm_vnet.id
-  depends_on = [module.vnet]
+  depends_on          = [module.vnet]
 }
 
 module "vnet_peering_aks_to_mgm" {
@@ -53,5 +53,5 @@ module "vnet_peering_aks_to_mgm" {
   resource_group_name = module.resource_group.name
   source_vnet_name    = data.azurerm_virtual_network.mgm_vnet.name
   remote_vnet_id      = module.vnet.id
-  depends_on = [module.vnet]
+  depends_on          = [module.vnet]
 }

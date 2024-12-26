@@ -1,9 +1,9 @@
 name: Deploy Azure Resources
 
 on:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Terraform Fmt
         id: fmt
-        run: terraform fmt -check
+        run: terraform fmt
 
       - name: Terraform Init
         id: init
