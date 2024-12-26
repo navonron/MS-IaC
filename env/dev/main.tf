@@ -11,6 +11,15 @@ module "vnet" {
   address_space = [var.address_space]
 }
 
+module "aks_subnet" {
+  source               = "../../modules/snet"
+  name                 = "${var.env}-aks-snet"
+  resource_group_name  = module.resource_group.name
+  virtual_network_name = module.vnet.name
+  address_prefixes = [cidrsubnet(var.address_space, 8, 0)]
+  depends_on = [module.vnet]
+}
+
 data "azurerm_virtual_network" "mgm_vnet" {
   name                = var.mgm_vnet_name
   resource_group_name = var.mgm_rg_name
@@ -34,14 +43,6 @@ module "vnet_peering_aks_to_mgm" {
   depends_on = [module.vnet]
 }
 
-module "aks_subnet" {
-  source               = "../../modules/snet"
-  name                 = "${var.env}-aks-snet"
-  resource_group_name  = module.resource_group.name
-  virtual_network_name = module.vnet.name
-  address_prefixes = [cidrsubnet(var.address_space, 8, 0)]
-  depends_on = [module.vnet]
-}
 
 module "aks" {
   source              = "../../modules/aks"
