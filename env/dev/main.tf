@@ -63,7 +63,7 @@ module "aks_nsg" {
   source              = "../../modules/nsg"
   name                = "${var.env}-aks-nsg"
   location            = "North Europe"
-  resource_group_name = module.resource_group.name
+  resource_group_name = module.aks.aks_resources_rg
   subnet_id           = module.aks_subnet.id
 }
 
