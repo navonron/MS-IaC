@@ -6,6 +6,7 @@ module "resource_group" {
 module "vnet" {
   source              = "../../modules/vnet"
   name                = "${var.env}-vnet"
+  location            = "North Europe"
   resource_group_name = module.resource_group.name
   address_space = [var.address_space]
 }
