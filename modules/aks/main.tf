@@ -23,28 +23,28 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
-provider "kubernetes" {
-  host = azurerm_kubernetes_cluster.aks.kube_config[0].host
-  client_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_certificate)
-  client_key = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_key)
-  cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate)
-}
-
-provider "helm" {
-  kubernetes {
-    host = azurerm_kubernetes_cluster.aks.kube_config[0].host
-    client_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_certificate)
-    client_key = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_key)
-    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate)
-  }
-}
-
-resource "helm_release" "nginx_ingress" {
-  name             = var.nginx_ingress_name
-  namespace        = var.nginx_ingress_namespace
-  chart            = var.nginx_ingress_chart
-  repository       = var.nginx_ingress_repository
-  version          = var.nginx_ingress_version
-  create_namespace = var.nginx_ingress_create_namespace
-  values           = var.nginx_ingress_values
-}
+# provider "kubernetes" {
+#   host = azurerm_kubernetes_cluster.aks.kube_config[0].host
+#   client_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_certificate)
+#   client_key = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_key)
+#   cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate)
+# }
+#
+# provider "helm" {
+#   kubernetes {
+#     host = azurerm_kubernetes_cluster.aks.kube_config[0].host
+#     client_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_certificate)
+#     client_key = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].client_key)
+#     cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate)
+#   }
+# }
+#
+# resource "helm_release" "nginx_ingress" {
+#   name             = var.nginx_ingress_name
+#   namespace        = var.nginx_ingress_namespace
+#   chart            = var.nginx_ingress_chart
+#   repository       = var.nginx_ingress_repository
+#   version          = var.nginx_ingress_version
+#   create_namespace = var.nginx_ingress_create_namespace
+#   values           = var.nginx_ingress_values
+# }
