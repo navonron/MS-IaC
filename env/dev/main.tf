@@ -53,7 +53,7 @@ module "acr_subnet" {
 
 module "acr" {
   source              = "../../modules/acr"
-  name                = "${var.env}-acr"
+  name                = "${var.env}acr"
   location            = var.location
   resource_group_name = module.resource_group.name
   sku                 = "Premium"  # Required for private endpoints
