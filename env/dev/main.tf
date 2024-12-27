@@ -11,14 +11,6 @@ module "vnet" {
   address_space = [var.vnet_address_space]
 }
 
-module "aks_subnet" {
-  source               = "../../modules/snet"
-  name                 = "${var.env}-aks-snet"
-  resource_group_name  = module.resource_group.name
-  virtual_network_name = module.vnet.name
-  address_prefixes = [cidrsubnet(var.vnet_address_space, 8, 0)]
-}
-
 /*
 ENABLE CONNECTIVITY BETWEEN DEV SPOKE AND HUB
 */
@@ -43,6 +35,73 @@ module "vnet_peering_aks_to_mgm" {
   remote_vnet_id      = data.azurerm_virtual_network.mgm_vnet.id
 }
 
+module "aks_subnet" {
+  source               = "../../modules/snet"
+  name                 = "${var.env}-aks-snet"
+  resource_group_name  = module.resource_group.name
+  virtual_network_name = module.vnet.name
+  address_prefixes = [cidrsubnet(var.vnet_address_space, 8, 0)]
+}
+
+module "acr_subnet" {
+  source               = "../../modules/snet"
+  name                 = "${var.env}-acr-snet"
+  resource_group_name  = module.resource_group.name
+  virtual_network_name = module.vnet.name
+  address_prefixes = [cidrsubnet(var.vnet_address_space, 8, 2)]
+}
+
+module "acr" {
+  source              = "../../modules/acr"
+  name                = "${var.env}-acr"
+  location            = var.location
+  resource_group_name = module.resource_group.name
+  sku                 = "Premium"  # Required for private endpoints
+}
+
+module "acr_private_dns" {
+  source              = "../../modules/private_dns_zone"
+  name                = "privatelink.azurecr.io"
+  resource_group_name = module.resource_group.name
+}
+
+module "acr_private_endpoint" {
+  source              = "../../modules/private_endpoint"
+  name                = "${var.env}-acr-pe"
+  location            = var.location
+  resource_group_name = module.resource_group.name
+  subnet_id           = module.acr_subnet.id
+  private_service_connection = {
+    name                           = "acrPrivateConnection"
+    private_connection_resource_id = module.acr.id
+    is_manual_connection           = false
+  }
+}
+
+module "acr_private_dns_zone_spoke_vnet_link" {
+  source                = "../../modules/private_dns_zone_vnet_link"
+  name                  = module.vnet.name
+  resource_group_name   = module.aks.aks_resources_rg
+  private_dns_zone_name = module.acr_private_dns.name
+  virtual_network_id    = module.vnet.id
+}
+
+module "acr_private_dns_zone_mgm_vnet_link" {
+  source                = "../../modules/private_dns_zone_vnet_link"
+  name                  = data.azurerm_virtual_network.mgm_vnet.name
+  resource_group_name   = module.aks.aks_resources_rg
+  private_dns_zone_name = module.acr_private_dns.name
+  virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
+}
+
+module "acr_private_dns_a_record" {
+  source              = "../../modules/private_dns_a_record"
+  name                = module.acr.name
+  zone_name           = module.acr_private_dns.name
+  resource_group_name = module.resource_group.name
+  records = [module.acr_private_endpoint.ip]
+}
+
 /*
 INGRESS DEPLOYMENT REQUIREMENTS
 */
@@ -60,6 +119,12 @@ module "aks_role_assignment_on_spoke_vnet" {
   principal_id         = module.aks_managed_identity.principal_id
 }
 
+module "aks_role_assignment_on_acr" {
+  source               = "../../modules/role_assignment"
+  scope                = module.acr.id
+  role_definition_name = "AcrPull"
+  principal_id         = module.aks_managed_identity.principal_id
+}
 
 module "aks" {
   source              = "../../modules/aks"
@@ -82,26 +147,26 @@ module "aks" {
 /*
 ALLOW ACCESS FROM SELF HOSTED GITHUB RUNNER TO AKS
 */
-# module "aks_nsg" {
-#   source              = "../../modules/nsg"
-#   name                = "${var.env}-aks-nsg"
-#   location            = var.location
-#   resource_group_name = module.aks.aks_resources_rg
-#   subnet_id           = module.aks_subnet.id
-# }
-#
-# module "aks_nsg_rule" {
-#   source = "../../modules/nsg_rule"
-#   nsg_rules = [
-#     {
-#       name                        = "allow-acess-for-github-runner"
-#       priority                    = 100
-#       direction                   = "Inbound"
-#       resource_group_name         = module.aks.aks_resources_rg
-#       network_security_group_name = module.aks_nsg.name
-#     }
-#   ]
-# }
+module "aks_nsg" {
+  source              = "../../modules/nsg"
+  name                = "${var.env}-aks-nsg"
+  location            = var.location
+  resource_group_name = module.aks.aks_resources_rg
+  subnet_id           = module.aks_subnet.id
+}
+
+module "aks_nsg_rule" {
+  source = "../../modules/nsg_rule"
+  nsg_rules = [
+    {
+      name                        = "allow-acess-for-github-runner"
+      priority                    = 100
+      direction                   = "Inbound"
+      resource_group_name         = module.aks.aks_resources_rg
+      network_security_group_name = module.aks_nsg.name
+    }
+  ]
+}
 
 /*
 ENABLE NAME RESOLUTION TO SELF HOSTED GITHUB RUNNER ON HUB VNET TO SPOKE
