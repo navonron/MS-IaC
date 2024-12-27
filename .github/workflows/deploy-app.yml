@@ -10,11 +10,11 @@ on:
 
 env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  AZURE_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
   ARM_USE_MSI: "true"
-  ACR_NAME: "devacrms"
-  AKS_CLUSTER_NAME:
-  AKS_RESOURCE_GROUP:
+  ACR_NAME: ${{ secrets.ACR_NAME }}
+  AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
+  AKS_RESOURCE_GROUP: ${{ secrets.AKS_RESOURCE_GROUP }}
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
         with:
           auth-type: IDENTITY
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
           enable-AzPSSession: true
 
       # Install dependencies and check for vulnerabilities
