@@ -1,4 +1,4 @@
-env                = "spoke-dev"
+env                = "dev"
 location           = "North Europe"
 vnet_address_space = "10.0.0.0/16"
 mgm_rg_name        = "management"
