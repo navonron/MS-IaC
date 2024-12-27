@@ -53,7 +53,7 @@ module "acr_subnet" {
 
 module "acr" {
   source              = "../../modules/acr"
-  name                = "${var.env}acr"
+  name                = "${var.env}acrmc"
   location            = var.location
   resource_group_name = module.resource_group.name
   sku                 = "Premium"  # Required for private endpoints
@@ -76,22 +76,6 @@ module "acr_private_endpoint" {
     private_connection_resource_id = module.acr.id
     is_manual_connection           = false
   }
-}
-
-module "acr_private_dns_zone_spoke_vnet_link" {
-  source                = "../../modules/private_dns_zone_vnet_link"
-  name                  = module.vnet.name
-  resource_group_name   = module.aks.aks_resources_rg
-  private_dns_zone_name = module.acr_private_dns.name
-  virtual_network_id    = module.vnet.id
-}
-
-module "acr_private_dns_zone_mgm_vnet_link" {
-  source                = "../../modules/private_dns_zone_vnet_link"
-  name                  = data.azurerm_virtual_network.mgm_vnet.name
-  resource_group_name   = module.aks.aks_resources_rg
-  private_dns_zone_name = module.acr_private_dns.name
-  virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
 }
 
 module "acr_private_dns_a_record" {
@@ -176,6 +160,22 @@ module "aks_private_dns_zone_mgm_vnet_link" {
   name                  = data.azurerm_virtual_network.mgm_vnet.name
   resource_group_name   = module.aks.aks_resources_rg
   private_dns_zone_name = regex("^[^.]+\\.(.*)", module.aks.private_fqdn)[0]
+  virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
+}
+
+module "acr_private_dns_zone_spoke_vnet_link" {
+  source                = "../../modules/private_dns_zone_vnet_link"
+  name                  = module.vnet.name
+  resource_group_name   = module.aks.aks_resources_rg
+  private_dns_zone_name = module.acr_private_dns.name
+  virtual_network_id    = module.vnet.id
+}
+
+module "acr_private_dns_zone_mgm_vnet_link" {
+  source                = "../../modules/private_dns_zone_vnet_link"
+  name                  = data.azurerm_virtual_network.mgm_vnet.name
+  resource_group_name   = module.aks.aks_resources_rg
+  private_dns_zone_name = module.acr_private_dns.name
   virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
 }
 
