@@ -33,22 +33,22 @@ jobs:
 
       # Install dependencies and check for vulnerabilities
       - name: Install Dependencies and Audit
-        working-directory: nextjsapp
+        working-directory: app/nextjsapp
         run: |
           npm install
           npm audit --production
 
       # Build the application
       - name: Build Application
-        working-directory: nextjsapp
+        working-directory: app/nextjsapp
         run: npm run build
 
       # Lint and Test
       - name: Lint Code
-        working-directory: nextjsapp
+        working-directory: app/nextjsapp
         run: npm run lint
       - name: Run Tests
-        working-directory: nextjsapp
+        working-directory: app/nextjsapp
         run: npm test
 
   containerize:
