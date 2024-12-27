@@ -1,0 +1,94 @@
+name: Deploy App
+
+on:
+  push:
+    paths:
+      - 'app'
+  workflow_dispatch:
+
+env:
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+  ARM_USE_MSI: "true"
+  ACR_NAME: "devacrms"
+  AKS_CLUSTER_NAME:
+  AKS_RESOURCE_GROUP:
+
+jobs:
+  build:
+    name: Build and Secure Application
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          auth-type: IDENTITY
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      # Install dependencies and check for vulnerabilities
+      - name: Install Dependencies and Audit
+        working-directory: nextjsapp
+        run: |
+          npm install
+          npm audit --production
+
+      # Build the application
+      - name: Build Application
+        working-directory: nextjsapp
+        run: npm run build
+
+      # Lint and Test
+      - name: Lint Code
+        working-directory: nextjsapp
+        run: npm run lint
+      - name: Run Tests
+        working-directory: nextjsapp
+        run: npm test
+
+  containerize:
+    name: Containerize and Push
+    needs: build
+    runs-on: self-hosted
+    steps:
+      # Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Log in to Container Registry
+      - name: Log in to ACR
+        run: az acr login --name ${{ secrets.ACR_NAME }}
+
+      # Build and push the Docker image
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/nextjsapp:${{ github.sha }} .
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/nextjsapp:${{ github.sha }}
+
+  deploy:
+    name: Deploy to AKS
+    needs: containerize
+    runs-on: self-hosted
+    steps:
+      # Checkout code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Configure kubectl
+      - name: Set up AKS
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
+
+      # Deploy to AKS
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+
+      # Verify Deployment
+      - name: Verify Deployment
+        run: kubectl get pods
