@@ -2,11 +2,11 @@ variable "env" {
   type = string
 }
 
-variable "aks_location" {
+variable "location" {
   type = string
 }
 
-variable "spoke_vnet_address_space" {
+variable "vnet_address_space" {
   type = string
 }
 

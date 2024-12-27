@@ -6,11 +6,6 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  contents: read
-  id-token: write
-  pull-requests: write
-
 env:
   BACKEND_AZURE_RESOURCE_GROUP_NAME: ${{ secrets.BACKEND_AZURE_RESOURCE_GROUP_NAME }}
   BACKEND_AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.BACKEND_AZURE_STORAGE_ACCOUNT_NAME }}
@@ -67,8 +62,10 @@ jobs:
           fi
 
       - name: Terraform Apply
-        run: terraform destroy -auto-approve
+        run: terraform apply -auto-approve "./main.tfplan"
 
+#      - name: Terraform Destroy
+#        run: terraform destroy -auto-approve
 
 
 
