@@ -2,6 +2,8 @@ name: Deploy IaC
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'app'
       - 'modules'
