@@ -75,6 +75,7 @@ module "acr_private_endpoint" {
     name                           = "acrPrivateConnection"
     private_connection_resource_id = module.acr.id
     is_manual_connection           = false
+    subresource_name               = "registry"
   }
 }
 

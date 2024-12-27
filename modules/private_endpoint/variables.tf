@@ -24,5 +24,6 @@ variable "private_service_connection" {
     name                           = string
     is_manual_connection           = bool
     private_connection_resource_id = string
+    subresource_name               = string
   })
 }
