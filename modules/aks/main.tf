@@ -22,4 +22,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type         = var.identity.type
     identity_ids = var.identity.identity_ids
   }
+
+  azure_active_directory_role_based_access_control {
+    azure_rbac_enabled = var.azure_rbac_enabled
+  }
 }
