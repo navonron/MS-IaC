@@ -126,6 +126,7 @@ module "aks" {
     type = "UserAssigned"
     identity_ids = [module.aks_managed_identity.id]
   }
+  admin_group_object_ids = [var.admin_group_object_id]
 }
 
 /*

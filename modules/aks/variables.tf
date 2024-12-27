@@ -65,10 +65,8 @@ variable "azure_rbac_enabled" {
   default     = true
 }
 
-
-
-
-
-
-
-
+variable "admin_group_object_ids" {
+  description = "(Optional) A list of Object IDs of Azure Active Directory Groups which should have Admin Role on the Cluster."
+  type        = list(string)
+  default     = []
+}

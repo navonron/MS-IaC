@@ -14,6 +14,7 @@ env:
   ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   TF_VAR_subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+  TF_VAR_admin_group_object_id: ${{secrets.AKS_ADMIN_GROUP}}
   ARM_USE_MSI: "true"
 
 jobs:

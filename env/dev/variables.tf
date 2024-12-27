@@ -21,3 +21,7 @@ variable "mgm_rg_name" {
 variable "subscription_id" {
   type = string
 }
+
+variable "admin_group_object_id" {
+  type = string
+}
