@@ -63,11 +63,3 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve "./main.tfplan"
-
-#      - name: Terraform Destroy
-#        run: terraform destroy -auto-approve
-
-
-
-
-
