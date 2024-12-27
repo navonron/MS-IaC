@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'app'
-      - 'modules'
+      - './env'
+      - './modules'
   workflow_dispatch:
 
 env:
