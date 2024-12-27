@@ -53,7 +53,7 @@ module "acr_subnet" {
 
 module "acr" {
   source              = "../../modules/acr"
-  name                = "${var.env}acrmc"
+  name                = "${var.env}acrms"
   location            = var.location
   resource_group_name = module.resource_group.name
   sku                 = "Premium"  # Required for private endpoints
@@ -126,7 +126,6 @@ module "aks" {
     type = "UserAssigned"
     identity_ids = [module.aks_managed_identity.id]
   }
-  admin_group_object_ids = [var.admin_group_object_id]
 }
 
 /*
