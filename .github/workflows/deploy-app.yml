@@ -30,7 +30,6 @@ jobs:
           auth-type: IDENTITY
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
 
       # Install dependencies and check for vulnerabilities
       - name: Install Dependencies and Audit
