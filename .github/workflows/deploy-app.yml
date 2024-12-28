@@ -54,9 +54,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          repository: navonron/MS-APP
+          repository: navonron/nextjsbasicapp
           token: ${{ secrets.CHART_REPO_TOKEN }}
-          path: MS-APP
+          path: nextjsbasicapp
 
       - name: Set up AKS credentials
         run: |
