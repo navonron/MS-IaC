@@ -65,33 +65,33 @@ module "acr" {
   }
 }
 
-module "acr_private_dns" {
-  source              = "../../modules/private_dns_zone"
-  name                = "privatelink.azurecr.io"
-  resource_group_name = module.resource_group.name
-}
-
-module "acr_private_endpoint" {
-  source              = "../../modules/private_endpoint"
-  name                = "${var.env}-acr-pe"
-  location            = var.location
-  resource_group_name = module.resource_group.name
-  subnet_id           = module.acr_subnet.id
-  private_service_connection = {
-    name                           = "acrPrivateConnection"
-    private_connection_resource_id = module.acr.id
-    is_manual_connection           = false
-    subresource_name               = "registry"
-  }
-}
-
-module "acr_private_dns_a_record" {
-  source              = "../../modules/private_dns_a_record"
-  name                = module.acr.name
-  zone_name           = module.acr_private_dns.name
-  resource_group_name = module.resource_group.name
-  records = [module.acr_private_endpoint.ip]
-}
+# module "acr_private_dns" {
+#   source              = "../../modules/private_dns_zone"
+#   name                = "privatelink.azurecr.io"
+#   resource_group_name = module.resource_group.name
+# }
+#
+# module "acr_private_endpoint" {
+#   source              = "../../modules/private_endpoint"
+#   name                = "${var.env}-acr-pe"
+#   location            = var.location
+#   resource_group_name = module.resource_group.name
+#   subnet_id           = module.acr_subnet.id
+#   private_service_connection = {
+#     name                           = "acrPrivateConnection"
+#     private_connection_resource_id = module.acr.id
+#     is_manual_connection           = false
+#     subresource_name               = "registry"
+#   }
+# }
+#
+# module "acr_private_dns_a_record" {
+#   source              = "../../modules/private_dns_a_record"
+#   name                = module.acr.name
+#   zone_name           = module.acr_private_dns.name
+#   resource_group_name = module.resource_group.name
+#   records = [module.acr_private_endpoint.ip]
+# }
 
 module "acr_nsg" {
   source              = "../../modules/nsg"
@@ -193,21 +193,21 @@ module "aks_private_dns_zone_mgm_vnet_link" {
   virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
 }
 
-module "acr_private_dns_zone_spoke_vnet_link" {
-  source                = "../../modules/private_dns_zone_vnet_link"
-  name                  = module.vnet.name
-  resource_group_name   = module.resource_group.name
-  private_dns_zone_name = module.acr_private_dns.name
-  virtual_network_id    = module.vnet.id
-}
+# module "acr_private_dns_zone_spoke_vnet_link" {
+#   source                = "../../modules/private_dns_zone_vnet_link"
+#   name                  = module.vnet.name
+#   resource_group_name   = module.resource_group.name
+#   private_dns_zone_name = module.acr_private_dns.name
+#   virtual_network_id    = module.vnet.id
+# }
 
-module "acr_private_dns_zone_mgm_vnet_link" {
-  source                = "../../modules/private_dns_zone_vnet_link"
-  name                  = data.azurerm_virtual_network.mgm_vnet.name
-  resource_group_name   = module.resource_group.name
-  private_dns_zone_name = module.acr_private_dns.name
-  virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
-}
+# module "acr_private_dns_zone_mgm_vnet_link" {
+#   source                = "../../modules/private_dns_zone_vnet_link"
+#   name                  = data.azurerm_virtual_network.mgm_vnet.name
+#   resource_group_name   = module.resource_group.name
+#   private_dns_zone_name = module.acr_private_dns.name
+#   virtual_network_id    = data.azurerm_virtual_network.mgm_vnet.id
+# }
 
 module "nginx_ingress" {
   source                     = "../../modules/nginx_ingress"
