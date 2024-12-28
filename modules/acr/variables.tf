@@ -20,8 +20,13 @@ variable "sku" {
   default     = "Basic"
 }
 
-variable "admin_enabled" {
-  description = "(Optional) Specifies whether the admin user is enabled. Defaults to false."
-  type        = bool
-  default     = true
+variable "acr_token_name" {
+  description = "(Required) Specifies the name of the token. Changing this forces a new resource to be created."
+  type        = string
+}
+
+variable "acr_token_scope_map_actions" {
+  description = "(Required) A list of actions to attach to the scope map (e.g. repo/content/read, repo2/content/delete)."
+  type = list(string)
+  default = ["repositories/*/content/read", "repositories/*/content/write"]
 }

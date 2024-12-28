@@ -63,6 +63,8 @@ module "acr" {
   location            = var.location
   resource_group_name = module.resource_group.name
   sku                 = "Premium"  # Required for private endpoints
+  acr_token_name = "${var.env}-github-runner-token"
+  acr_token_scope_map_id =
 }
 
 module "acr_private_dns" {
@@ -91,59 +93,6 @@ module "acr_private_dns_a_record" {
   zone_name           = module.acr_private_dns.name
   resource_group_name = module.resource_group.name
   records = [module.acr_private_endpoint.ip]
-}
-
-module "key_vault" {
-  source              = "../../modules/key_vault"
-  name                = "${var.env}-kv-acr"
-  location            = var.location
-  resource_group_name = module.resource_group.name
-  tenant_id           = var.tenant_id
-  network_acls = {
-    virtual_network_subnet_ids = [module.acr_subnet.id, data.azurerm_subnet.github_runner_snet.id]
-  }
-}
-
-module "key_vault_private_dns" {
-  source              = "../../modules/private_dns_zone"
-  name                = "privatelink.vaultcore.azure.net"
-  resource_group_name = module.resource_group.name
-}
-
-module "key_vault_private_endpoint" {
-  source              = "../../modules/private_endpoint"
-  name                = "${var.env}-kv-pe"
-  location            = var.location
-  resource_group_name = module.resource_group.name
-  subnet_id           = module.acr_subnet.id
-  private_service_connection = {
-    name                           = "kvPrivateConnection"
-    private_connection_resource_id = module.key_vault.id
-    is_manual_connection           = false
-    subresource_name               = "Vault"
-  }
-}
-
-module "key_vault_private_dns_a_record" {
-  source              = "../../modules/private_dns_a_record"
-  name                = module.key_vault.name
-  zone_name           = module.key_vault_private_dns.name
-  resource_group_name = module.resource_group.name
-  records = [module.key_vault_private_endpoint.ip]
-}
-
-module "acr_admin_username_key_vault_secret" {
-  source       = "../../modules/key_vault_secret"
-  name         = "${var.env}-acr-admin_username"
-  value        = module.acr.admin_username
-  key_vault_id = module.key_vault.id
-}
-
-module "acr_admin_password_key_vault_secret" {
-  source       = "../../modules/key_vault_secret"
-  name         = "${var.env}-acr-admin_password"
-  value        = module.acr.admin_password
-  key_vault_id = module.key_vault.id
 }
 
 /*
