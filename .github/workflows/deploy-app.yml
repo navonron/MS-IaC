@@ -30,9 +30,9 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
           token: ${{ secrets.CHART_REPO_TOKEN }}
-          path: ${{ env.IMAGE_NAME }}
+          path: ${{ secrets.IMAGE_NAME }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
