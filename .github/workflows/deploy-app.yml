@@ -42,10 +42,12 @@ jobs:
           echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker Image
+        working-directory: ./nextjsbasicapp
         run: |
           docker build -t ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest .
 
       - name: Push Docker Image to Docker Hub
+        working-directory: ./nextjsbasicapp
         run: |
           docker push ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
