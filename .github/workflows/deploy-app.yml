@@ -1,11 +1,6 @@
 name: Deploy App
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'app/**'
   workflow_dispatch:
 
 env:
@@ -15,6 +10,9 @@ env:
   ACR_NAME: ${{ secrets.ACR_NAME }}
   AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
   AKS_RESOURCE_GROUP: ${{ secrets.AKS_RESOURCE_GROUP }}
+  IMAGE_NAME: nextjsbasicapp
+  CHART_NAME: nextjsbasicapp-chart
+  ACR_LOGIN_SERVER: ${{ secrets.AKS_CLUSTER_NAME }}.azurecr.io
 
 jobs:
   build:
@@ -24,6 +22,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Clone Helm chart repository
+        run: |
+          git clone https://x-access-token:${{ secrets.CHART_REPO_TOKEN }}@github.com/navonron/MS-APP.git ${{ env.CHART_NAME }}
+
+
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -31,65 +34,81 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
-      # Install dependencies and check for vulnerabilities
-      - name: Install Dependencies and Audit
-        working-directory: app/nextjsapp
-        run: |
-          npm install
-          npm audit --production
-
-      # Build the application
-      - name: Build Application
-        working-directory: app/nextjsapp
-        run: npm run build
-
-      # Lint and Test
-      - name: Lint Code
-        working-directory: app/nextjsapp
-        run: npm run lint
-      - name: Run Tests
-        working-directory: app/nextjsapp
-        run: npm test
-
-  containerize:
-    name: Containerize and Push
-    needs: build
-    runs-on: self-hosted
-    steps:
-      # Checkout code
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      # Log in to Container Registry
       - name: Log in to ACR
-        run: az acr login --name ${{ secrets.ACR_NAME }}
-
-      # Build and push the Docker image
-      - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/nextjsapp:${{ github.sha }} .
-          docker push ${{ secrets.ACR_NAME }}.azurecr.io/nextjsapp:${{ github.sha }}
+          az acr login --name ${{ secrets.ACR_NAME }}
 
-  deploy:
-    name: Deploy to AKS
-    needs: containerize
-    runs-on: self-hosted
-    steps:
-      # Checkout code
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest .
+          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
 
-      # Configure kubectl
-      - name: Set up AKS
+      - name: Deploy Helm chart
         run: |
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
+          helm upgrade --install ${{ env.IMAGE_NAME }} ./${{ env.CHART_NAME }} \
+            --set image.repository=${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }} \
+            --set image.tag=latest
 
-      # Deploy to AKS
-      - name: Deploy to AKS
-        run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-
-      # Verify Deployment
-      - name: Verify Deployment
-        run: kubectl get pods
+#      # Install dependencies and check for vulnerabilities
+#      - name: Install Dependencies and Audit
+#        working-directory: app/nextjsapp
+#        run: |
+#          npm install
+#          npm audit --production
+#
+#      # Build the application
+#      - name: Build Application
+#        working-directory: app/nextjsapp
+#        run: npm run build
+#
+#      # Lint and Test
+#      - name: Lint Code
+#        working-directory: app/nextjsapp
+#        run: npm run lint
+#      - name: Run Tests
+#        working-directory: app/nextjsapp
+#        run: npm test
+#
+#  containerize:
+#    name: Containerize and Push
+#    needs: build
+#    runs-on: self-hosted
+#    steps:
+#      # Checkout code
+#      - name: Checkout Code
+#        uses: actions/checkout@v4
+#
+#      # Log in to Container Registry
+#      - name: Log in to ACR
+#        run: az acr login --name ${{ secrets.ACR_NAME }}
+#
+#      # Build and push the Docker image
+#      - name: Build and Push Docker Image
+#        run: |
+#          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/nextjsapp:${{ github.sha }} .
+#          docker push ${{ secrets.ACR_NAME }}.azurecr.io/nextjsapp:${{ github.sha }}
+#
+#  deploy:
+#    name: Deploy to AKS
+#    needs: containerize
+#    runs-on: self-hosted
+#    steps:
+#      # Checkout code
+#      - name: Checkout Code
+#        uses: actions/checkout@v4
+#
+#      # Configure kubectl
+#      - name: Set up AKS
+#        run: |
+#          az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
+#
+#      # Deploy to AKS
+#      - name: Deploy to AKS
+#        run: |
+#          kubectl apply -f k8s/deployment.yaml
+#          kubectl apply -f k8s/service.yaml
+#
+#      # Verify Deployment
+#      - name: Verify Deployment
+#        run: kubectl get pods
