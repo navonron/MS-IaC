@@ -32,7 +32,6 @@ jobs:
         with:
           repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
           token: ${{ secrets.GH_TOKEN }}
-          path: ${{ secrets.IMAGE_NAME }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
