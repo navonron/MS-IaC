@@ -27,11 +27,12 @@ jobs:
     name: CodeQL Scan
     runs-on: self-hosted
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
-          token: ${{ secrets.GH_TOKEN }}
+          repository: navonron/nextjsbasicapp
+          token: ${{ secrets.CHART_REPO_TOKEN }}
+          path: nextjsbasicapp
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
@@ -47,14 +48,13 @@ jobs:
     name: Deploy Application
     runs-on: self-hosted
     needs: codeql-scan
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
-          token: ${{ secrets.GH_TOKEN }}
-          path: ${{ secrets.IMAGE_NAME }}
+          repository: navonron/nextjsbasicapp
+          token: ${{ secrets.CHART_REPO_TOKEN }}
+          path: nextjsbasicapp
 
       - name: Azure login
         uses: azure/login@v2
@@ -68,17 +68,17 @@ jobs:
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker Image
-        working-directory: ./${{ secrets.IMAGE_NAME }}
+        working-directory: ./nextjsbasicapp
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest .
 
       - name: Push Docker Image to Docker Hub
-        working-directory: ./${{ secrets.IMAGE_NAME }}
+        working-directory: ./nextjsbasicapp
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
 
       - name: Deploy to AKS
-        working-directory: ./${{ secrets.IMAGE_NAME }}
+        working-directory: ./nextjsbasicapp
         run: |
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
           kubectl apply -f k8s/deployment.yaml
