@@ -104,6 +104,34 @@ module "key_vault" {
   }
 }
 
+module "key_vault_private_dns" {
+  source              = "../../modules/private_dns_zone"
+  name                = "privatelink.vaultcore.azure.net"
+  resource_group_name = module.resource_group.name
+}
+
+module "key_vault_private_endpoint" {
+  source              = "../../modules/private_endpoint"
+  name                = "${var.env}-kv-pe"
+  location            = var.location
+  resource_group_name = module.resource_group.name
+  subnet_id           = module.acr_subnet.id
+  private_service_connection = {
+    name                           = "kvPrivateConnection"
+    private_connection_resource_id = module.key_vault.id
+    is_manual_connection           = false
+    subresource_name               = "Vault"
+  }
+}
+
+module "key_vault_private_dns_a_record" {
+  source              = "../../modules/private_dns_a_record"
+  name                = module.key_vault.name
+  zone_name           = module.key_vault_private_dns.name
+  resource_group_name = module.resource_group.name
+  records = [module.key_vault_private_endpoint.ip]
+}
+
 module "acr_admin_username_key_vault_secret" {
   source       = "../../modules/key_vault_secret"
   name         = "${var.env}-acr-admin_username"
@@ -117,7 +145,6 @@ module "acr_admin_password_key_vault_secret" {
   value        = module.acr.admin_password
   key_vault_id = module.key_vault.id
 }
-
 
 /*
 INGRESS DEPLOYMENT REQUIREMENTS
