@@ -38,17 +38,11 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
-      - name: Log in to ACR
+      - name: Log in to ACR and Push Docker Image
         working-directory: ./nextjsbasicapp
         run: |
           az acr login --name ${{ secrets.ACR_NAME }}
           docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest .
-
-#      - name: Build and Push Docker Image
-#        working-directory: ./nextjsbasicapp
-#        run: |
-#          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest .
-#          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -57,12 +51,19 @@ jobs:
           token: ${{ secrets.CHART_REPO_TOKEN }}
           path: MS-APP
 
-      - name: Deploy Helm Chart
+      - name: Set up AKS credentials
         run: |
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
-          helm upgrade --install ${{ env.IMAGE_NAME }} ./MS-APP/nextjsbasicapp-chart \
-            --set image.repository=${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }} \
-            --set image.tag=latest
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get service nextjsbasicapp-service
 
 #      # Install dependencies and check for vulnerabilities
 #      - name: Install Dependencies and Audit
