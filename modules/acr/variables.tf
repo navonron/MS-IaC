@@ -40,7 +40,7 @@ variable "acr_token_scope_map_actions" {
 
 variable "network_rule_set" {
   type = object({
-    default_action = optional(string, "Deny")
+    default_action = optional(string, "Allow")
     ip_rules = list(object({
       action = optional(string, "Allow")
       ip_range = string
