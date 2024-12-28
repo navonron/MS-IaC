@@ -61,7 +61,7 @@ module "acr" {
   network_rule_set = {
     ip_rules = [
       { ip_range = data.azurerm_virtual_network.mgm_vnet.address_space[0] },
-      { ip_range = module.aks_subnet.address_prefixes }
+      { ip_range = module.aks_subnet.address_prefixes[0] }
     ]
   }
 }
