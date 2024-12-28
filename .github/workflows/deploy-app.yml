@@ -18,8 +18,29 @@ env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
 jobs:
-  build:
-    name: Build and Deploy Application
+  codeql-scan:
+    name: CodeQL Scan
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+          token: ${{ secrets.CHART_REPO_TOKEN }}
+          path: ${{ env.IMAGE_NAME }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: 'javascript'
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          fail-on-error: true
+
+  deploy:
+    name: Deploy Application
     runs-on: self-hosted
     steps:
       - name: Checkout Repository
@@ -56,6 +77,13 @@ jobs:
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
+          
+          
+
+      - name: Install dependencies
+        run: npm install
+
+
 
 #      # Install dependencies and check for vulnerabilities
 #      - name: Install Dependencies and Audit
