@@ -93,6 +93,28 @@ module "acr_private_dns_a_record" {
   records = [module.acr_private_endpoint.ip]
 }
 
+module "acr_nsg" {
+  source              = "../../modules/nsg"
+  name                = "${var.env}-acr-nsg"
+  location            = var.location
+  resource_group_name = module.resource_group.name
+  subnet_id           = module.acr_subnet.id
+}
+
+module "acr_nsg_rule" {
+  source = "../../modules/nsg_rule"
+  nsg_rules = [
+    {
+      name                        = "allow-acess-for-github-runner"
+      priority                    = 100
+      direction                   = "Inbound"
+      source_address_prefix       = data.azurerm_virtual_network.mgm_vnet.address_space[0]
+      resource_group_name         = module.resource_group.name
+      network_security_group_name = module.acr_nsg.name
+    }
+  ]
+}
+
 /*
 INGRESS DEPLOYMENT REQUIREMENTS
 */
@@ -153,6 +175,7 @@ module "aks_nsg_rule" {
       name                        = "allow-acess-for-github-runner"
       priority                    = 100
       direction                   = "Inbound"
+      source_address_prefix       = data.azurerm_virtual_network.mgm_vnet.address_space[0]
       resource_group_name         = module.aks.aks_resources_rg
       network_security_group_name = module.aks_nsg.name
     }
