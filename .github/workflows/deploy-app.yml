@@ -77,30 +77,3 @@ jobs:
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
-          
-          
-
-      - name: Install dependencies
-        run: npm install
-
-
-
-#      # Install dependencies and check for vulnerabilities
-#      - name: Install Dependencies and Audit
-#        working-directory: app/nextjsapp
-#        run: |
-#          npm install
-#          npm audit --production
-#
-#      # Build the application
-#      - name: Build Application
-#        working-directory: app/nextjsapp
-#        run: npm run build
-#
-#      # Lint and Test
-#      - name: Lint Code
-#        working-directory: app/nextjsapp
-#        run: npm run lint
-#      - name: Run Tests
-#        working-directory: app/nextjsapp
-#        run: npm test
