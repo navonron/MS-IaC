@@ -30,3 +30,13 @@ variable "acr_token_scope_map_actions" {
   type = list(string)
   default = ["repositories/*/content/read", "repositories/*/content/write"]
 }
+
+variable "network_rule_set" {
+  type = object({
+    default_action = optional(string)
+    ip_rules = list(object({
+      action = optional(string, "Allow")
+      ip_range = string
+    }))
+  })
+}

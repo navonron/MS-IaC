@@ -3,6 +3,10 @@ resource "azurerm_container_registry" "acr" {
   location            = var.location
   resource_group_name = var.resource_group_name
   sku                 = var.sku
+  network_rule_set = {
+    default_action = var.network_rule_set.default_action
+    ip_rule        = var.network_rule_set.ip_rules
+  }
 }
 
 resource "azurerm_container_registry_scope_map" "acr_token_scope_map" {
