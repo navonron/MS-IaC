@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
 env:
+  ENVIRONMENT: "dev"
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
   ARM_USE_MSI: "true"
@@ -13,6 +14,7 @@ env:
   IMAGE_NAME: nextjsbasicapp
   CHART_NAME: nextjsbasicapp-chart
   ACR_LOGIN_SERVER: ${{ secrets.AKS_CLUSTER_NAME }}.azurecr.io
+  ACR_TOKEN_NAME: ${{ENVIRONMENT}}-github-runner-token
 
 jobs:
   build:
@@ -26,7 +28,6 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.CHART_REPO_TOKEN }}@github.com/navonron/MS-APP.git ${{ env.CHART_NAME }}
 
-
       - name: Azure login
         uses: azure/login@v2
         with:
@@ -37,7 +38,7 @@ jobs:
       - name: Log in to ACR
         run: |
           ACR_TOKEN=$(az acr login --name ${{ secrets.ACR_NAME }} --expose-token --query accessToken -o tsv)
-          echo $ACR_TOKEN | docker login ${{ env.ACR_LOGIN_SERVER }} --username 00000000-0000-0000-0000-000000000000 --password-stdin
+          echo $ACR_TOKEN | docker login ${{ env.ACR_LOGIN_SERVER }} --username ${{ env.ACR_TOKEN_NAME }} --password-stdin
 
       - name: Build and push Docker image
         run: |
