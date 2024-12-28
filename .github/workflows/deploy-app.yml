@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: navonron/MS-APP
-          path: MS-APP
+          token: ${{ secrets.CHART_REPO_TOKEN }}
 
       - name: Azure login
         uses: azure/login@v2
