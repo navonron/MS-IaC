@@ -52,9 +52,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
+          repository: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}
           token: ${{ secrets.CHART_REPO_TOKEN }}
-          path: ${{ env.IMAGE_NAME }}
+          path: ${{ secrets.IMAGE_NAME }}
 
       - name: Azure login
         uses: azure/login@v2
@@ -65,20 +65,20 @@ jobs:
 
       - name: Log in to Docker Hub
         run: |
-          echo "${{ env.DOCKER_PASSWORD }}" | docker login -u "${{ env.DOCKER_USERNAME }}" --password-stdin
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Docker Image
-        working-directory: ./${{ env.IMAGE_NAME }}
+        working-directory: ./${{ secrets.IMAGE_NAME }}
         run: |
-          docker build -t ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest .
 
       - name: Push Docker Image to Docker Hub
-        working-directory: ./${{ env.IMAGE_NAME }}
+        working-directory: ./${{ secrets.IMAGE_NAME }}
         run: |
-          docker push ${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
 
       - name: Deploy to AKS
-        working-directory: ./${{ env.IMAGE_NAME }}
+        working-directory: ./${{ secrets.IMAGE_NAME }}
         run: |
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
           kubectl apply -f k8s/deployment.yaml
