@@ -7,6 +7,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+
 env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
@@ -43,6 +47,7 @@ jobs:
   deploy:
     name: Deploy Application
     runs-on: self-hosted
+    needs: codeql-scan
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
