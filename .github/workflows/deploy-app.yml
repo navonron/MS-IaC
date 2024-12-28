@@ -21,21 +21,15 @@ env:
 
 jobs:
   build:
-    name: Build and Secure Application
+    name: Build and Deploy Application
     runs-on: self-hosted
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Clone Helm chart repository
-        run: |
-          git clone https://x-access-token:${{ secrets.CHART_REPO_TOKEN }}@github.com/navonron/MS-APP.git ${{ env.CHART_NAME }}
-
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           repository: navonron/MS-APP
-          token: ${{ secrets.CHART_REPO_TOKEN }}
+          token: ${{ secrets.CHART_REPO_TOKEN }}  # Ensure this token has repo access
+          path: MS-APP
 
       - name: Azure login
         uses: azure/login@v2
@@ -50,15 +44,15 @@ jobs:
 #          ACR_TOKEN=$(az acr login --name ${{ secrets.ACR_NAME }} --expose-token --query accessToken -o tsv)
 #          echo $ACR_TOKEN | docker login ${{ env.ACR_LOGIN_SERVER }} --username 00000000-0000-0000-0000-000000000000 --password-stdin
 
-      - name: Build and push Docker image
+      - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest .
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest ./MS-APP/nextjsbasicapp
           docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Deploy Helm chart
+      - name: Deploy Helm Chart
         run: |
           az aks get-credentials --resource-group ${{ secrets.AKS_RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }}
-          helm upgrade --install ${{ env.IMAGE_NAME }} ./${{ env.CHART_NAME }} \
+          helm upgrade --install ${{ env.IMAGE_NAME }} ./MS-APP/nextjsbasicapp-chart \
             --set image.repository=${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }} \
             --set image.tag=latest
 
