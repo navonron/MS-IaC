@@ -19,12 +19,6 @@ data "azurerm_virtual_network" "mgm_vnet" {
   resource_group_name = var.mgm_rg_name
 }
 
-data "azurerm_subnet" "github_runner_snet" {
-  name                 = var.github_runner_snet_name
-  virtual_network_name = data.azurerm_virtual_network.mgm_vnet.name
-  resource_group_name  = data.azurerm_virtual_network.mgm_vnet.resource_group_name
-}
-
 module "vnet_peering_mgm_to_aks" {
   source              = "../../modules/vnet_peering"
   name                = "mgm-to-${var.env}"
@@ -62,9 +56,8 @@ module "acr" {
   name                = "${var.env}acrms"
   location            = var.location
   resource_group_name = module.resource_group.name
-  sku                 = "Premium"  # Required for private endpoints
-  acr_token_name = "${var.env}-github-runner-token"
-  acr_token_scope_map_id =
+  sku = "Premium"  # Required for private endpoints
+  acr_token_name      = "${var.env}-github-runner-token"
 }
 
 module "acr_private_dns" {
