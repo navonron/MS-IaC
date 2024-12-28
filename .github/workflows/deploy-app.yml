@@ -15,9 +15,8 @@ env:
   AKS_CLUSTER_NAME: ${{ secrets.AKS_CLUSTER_NAME }}
   AKS_RESOURCE_GROUP: ${{ secrets.AKS_RESOURCE_GROUP }}
   IMAGE_NAME: nextjsbasicapp
-  CHART_NAME: nextjsbasicapp-chart
-  ACR_LOGIN_SERVER: ${{ secrets.AKS_CLUSTER_NAME }}.azurecr.io
-  ACR_TOKEN_NAME: github-runner-token
+  DOCKER_PASSWORD: dckr_pat_eu2ESFDNKYDfUGzafg8Ff3KxULY
+  DOCKER_USERNAME: nvonron
 
 jobs:
   build:
@@ -38,11 +37,17 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
-      - name: Log in to ACR and Push Docker Image
-        working-directory: ./nextjsbasicapp
+      - name: Log in to Docker Hub
         run: |
-          az acr login --name ${{ secrets.ACR_NAME }}
-          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest .
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
       - name: Checkout Repository
         uses: actions/checkout@v4
