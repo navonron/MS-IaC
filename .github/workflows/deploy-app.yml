@@ -1,6 +1,9 @@
 name: Deploy App
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 env:
@@ -34,9 +37,6 @@ jobs:
           auth-type: IDENTITY
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v2
 
       - name: Log in to ACR
         run: |
