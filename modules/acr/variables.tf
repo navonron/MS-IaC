@@ -20,6 +20,13 @@ variable "sku" {
   default     = "Basic"
 }
 
+variable "public_network_access_enabled" {
+  description = "(Optional) Whether public network access is allowed for the container registry. Defaults to true."
+  type        = bool
+  default     = false
+}
+
+
 variable "acr_token_name" {
   description = "(Required) Specifies the name of the token. Changing this forces a new resource to be created."
   type        = string
@@ -33,7 +40,7 @@ variable "acr_token_scope_map_actions" {
 
 variable "network_rule_set" {
   type = object({
-    default_action = optional(string, "Allow")
+    default_action = optional(string, "Deny")
     ip_rules = list(object({
       action = optional(string, "Allow")
       ip_range = string
