@@ -37,8 +37,7 @@ jobs:
 
       - name: Log in to ACR
         run: |
-          ACR_TOKEN=$(az acr login --name ${{ secrets.ACR_NAME }} --expose-token --query accessToken -o tsv)
-          echo $ACR_TOKEN | docker login ${{ env.ACR_LOGIN_SERVER }} --username 00000000-0000-0000-0000-000000000000 --password-stdin
+          az acr login --name ${{ secrets.ACR_NAME }}
 
       - name: Build and push Docker image
         run: |
