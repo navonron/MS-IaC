@@ -1,6 +1,9 @@
 name: Deploy App
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 env:
@@ -37,8 +40,9 @@ jobs:
 
       - name: Log in to ACR
         run: |
-          ACR_TOKEN=$(az acr login --name ${{ secrets.ACR_NAME }} --expose-token --query accessToken -o tsv)
-          echo $ACR_TOKEN | docker login ${{ env.ACR_LOGIN_SERVER }} --username 00000000-0000-0000-0000-000000000000 --password-stdin
+          az acr login
+#          ACR_TOKEN=$(az acr login --name ${{ secrets.ACR_NAME }} --expose-token --query accessToken -o tsv)
+#          echo $ACR_TOKEN | docker login ${{ env.ACR_LOGIN_SERVER }} --username 00000000-0000-0000-0000-000000000000 --password-stdin
 
       - name: Build and push Docker image
         run: |
