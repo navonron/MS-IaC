@@ -60,7 +60,7 @@ module "acr" {
   acr_token_name      = "${var.env}-github-runner-token"
   network_rule_set = {
     ip_rules = [{
-      ip_range = data.azurerm_virtual_network.mgm_vnet.address_space
+      ip_range = data.azurerm_virtual_network.mgm_vnet.address_space[0]
     }]
   }
 }
