@@ -21,7 +21,3 @@ variable "mgm_rg_name" {
 variable "subscription_id" {
   type = string
 }
-
-variable "tenant_id" {
-  type = string
-}
