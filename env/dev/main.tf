@@ -19,6 +19,12 @@ data "azurerm_virtual_network" "mgm_vnet" {
   resource_group_name = var.mgm_rg_name
 }
 
+data "azurerm_subnet" "github_runner_snet" {
+  name                 = var.github_runner_snet_name
+  virtual_network_name = data.azurerm_virtual_network.mgm_vnet.name
+  resource_group_name  = data.azurerm_virtual_network.mgm_vnet.resource_group_name
+}
+
 module "vnet_peering_mgm_to_aks" {
   source              = "../../modules/vnet_peering"
   name                = "mgm-to-${var.env}"
@@ -86,6 +92,32 @@ module "acr_private_dns_a_record" {
   resource_group_name = module.resource_group.name
   records = [module.acr_private_endpoint.ip]
 }
+
+module "key_vault" {
+  source              = "../../modules/key_vault"
+  name                = "${var.env}-kv-acr"
+  location            = var.location
+  resource_group_name = module.resource_group.name
+  tenant_id           = var.tenant_id
+  network_acls = {
+    virtual_network_subnet_ids = [module.acr_subnet.id, data.azurerm_subnet.github_runner_snet.id]
+  }
+}
+
+module "acr_admin_username_key_vault_secret" {
+  source       = "../../modules/key_vault_secret"
+  name         = "${var.env}-acr-admin_username"
+  value        = module.acr.admin_username
+  key_vault_id = module.key_vault.id
+}
+
+module "acr_admin_password_key_vault_secret" {
+  source       = "../../modules/key_vault_secret"
+  name         = "${var.env}-acr-admin_password"
+  value        = module.acr.admin_password
+  key_vault_id = module.key_vault.id
+}
+
 
 /*
 INGRESS DEPLOYMENT REQUIREMENTS
