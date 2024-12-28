@@ -31,6 +31,12 @@ jobs:
         run: |
           git clone https://x-access-token:${{ secrets.CHART_REPO_TOKEN }}@github.com/navonron/MS-APP.git ${{ env.CHART_NAME }}
 
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          repository: navonron/MS-APP
+          path: MS-APP
+
       - name: Azure login
         uses: azure/login@v2
         with:
