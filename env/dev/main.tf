@@ -102,7 +102,7 @@ module "nsg" {
     {
       name                = "${var.env}-aks-nsg"
       location            = var.location
-      resource_group_name = module.aks.aks_resources_rg
+      resource_group_name = module.resource_group.name
       snet_id           = module.snet.id["${var.env}-aks-snet"]
     },
     {
@@ -122,7 +122,7 @@ module "nsg_rule" {
       priority                    = 100
       direction                   = "Inbound"
       source_address_prefix       = data.azurerm_virtual_network.mgm_vnet.address_space[0]
-      resource_group_name         = module.aks.aks_resources_rg
+      resource_group_name         = module.resource_group.name
       network_security_group_name = module.nsg.name[0]
     },
     {
