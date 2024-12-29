@@ -26,17 +26,6 @@ variable "public_network_access_enabled" {
   default     = true
 }
 
-variable "acr_token_name" {
-  description = "(Required) Specifies the name of the token. Changing this forces a new resource to be created."
-  type        = string
-}
-
-variable "acr_token_scope_map_actions" {
-  description = "(Required) A list of actions to attach to the scope map (e.g. repo/content/read, repo2/content/delete)."
-  type = list(string)
-  default = ["repositories/*/content/read", "repositories/*/content/write"]
-}
-
 variable "network_rule_set" {
   type = object({
     default_action = optional(string, "Deny")
