@@ -131,7 +131,7 @@ module "nsg_rule" {
       direction                   = "Inbound"
       source_address_prefix       = data.azurerm_virtual_network.mgm_vnet.address_space[0]
       resource_group_name         = module.resource_group.name
-      network_security_group_name = module.nsg.name[0]
+      network_security_group_name = module.nsg.name[1]
     }
   ]
 }
