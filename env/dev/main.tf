@@ -103,13 +103,13 @@ module "nsg" {
       name                = "${var.env}-aks-nsg"
       location            = var.location
       resource_group_name = module.aks.aks_resources_rg
-      subnet_id           = module.snet.id[0]
+      snet_id           = module.snet.id[0]
     },
     {
       name                = "${var.env}-acr-nsg"
       location            = var.location
       resource_group_name = module.resource_group.name
-      subnet_id           = module.snet.id[1]
+      snet_id           = module.snet.id[1]
     }
   ]
 }
