@@ -8,6 +8,6 @@ resource "azurerm_network_security_group" "nsg" {
 module "nsg_snet_association" {
   source   = "../nsg_snet_association"
   for_each = {for idx, nsg in var.nsg : idx => nsg}
-  nsg_id   = azurerm_network_security_group.nsg[idx].id
+  nsg_id   = azurerm_network_security_group.nsg[each.key].id
   snet_id  = each.value.snet_id
 }
