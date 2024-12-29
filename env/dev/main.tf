@@ -79,7 +79,7 @@ module "acr_private_endpoint" {
   name                = "${var.env}-acr-pe"
   location            = var.location
   resource_group_name = module.resource_group.name
-  subnet_id           = module.snet.id[1]
+  subnet_id           = module.snet.id["${var.env}-acr-snet"]
   private_service_connection = {
     name                           = "acrPrivateConnection"
     private_connection_resource_id = module.acr.id
@@ -103,13 +103,13 @@ module "nsg" {
       name                = "${var.env}-aks-nsg"
       location            = var.location
       resource_group_name = module.aks.aks_resources_rg
-      snet_id           = module.snet.id[0]
+      snet_id           = module.snet.id["${var.env}-aks-snet"]
     },
     {
       name                = "${var.env}-acr-nsg"
       location            = var.location
       resource_group_name = module.resource_group.name
-      snet_id           = module.snet.id[1]
+      snet_id           = module.snet.id["${var.env}-acr-snet"]
     }
   ]
 }
@@ -168,7 +168,7 @@ module "aks" {
   dns_prefix          = "${var.env}aks"
   default_node_pool = {
     name           = "np001"
-    vnet_subnet_id = module.snet.id[0]
+    vnet_subnet_id = module.snet.id["${var.env}-aks-snet"]
   }
   service_cidr = cidrsubnet(var.vnet_address_space, 8, 1)
   dns_service_ip = cidrhost(cidrsubnet(var.vnet_address_space, 8, 1), 4)

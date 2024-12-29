@@ -1,6 +1,6 @@
 output "name" {
   value = zipmap(
-    [for nsg in var.nsg : nsg],
+    [for idx, nsg in var.nsg : idx], # Use the index as the key
     values(azurerm_network_security_group.nsg)[*].name
   )
 }
