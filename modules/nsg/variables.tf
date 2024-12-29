@@ -4,6 +4,6 @@ variable "nsg" {
     name                = string
     location            = string
     resource_group_name = string
-    snet_association_id = string
+    snet_id = string
   }))
 }
