@@ -58,20 +58,4 @@ jobs:
           fi
 
       - name: Terraform Apply with Retry
-        run: |
-          max_retries=3
-          attempt=0
-          
-          while [ $attempt -lt $max_retries ]; do
-            terraform apply -auto-approve "./main.tfplan" && break
-          
-            attempt=$((attempt + 1))
-            echo "Terraform Apply failed. Retrying attempt $attempt/$max_retries..."
-          
-            if [ $attempt -ge $max_retries ]; then
-              echo "Terraform Apply failed after $max_retries attempts."
-              exit 1
-            fi
-          
-            sleep 10
-          done
+        run: terraform apply -auto-approve "./main.tfplan" && break
