@@ -35,3 +35,19 @@ variable "network_rule_set" {
     }))
   })
 }
+
+# variable "identity" {
+#   description = "(Required) Specifies the type of Managed Service Identity that should be configured on this Kubernetes Cluster. Possible values are SystemAssigned or UserAssigned."
+#   type = object({
+#     type = optional(string, "SystemAssigned")
+#     identity_ids = optional(list(string))
+#   })
+# }
+#
+# variable "encryption" {
+#   description = "(Required) Specifies the type of Managed Service Identity that should be configured on this Kubernetes Cluster. Possible values are SystemAssigned or UserAssigned."
+#   type = object({
+#     kv_id = string
+#     identity_client_id = string
+#   })
+# }

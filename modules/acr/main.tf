@@ -15,4 +15,14 @@ resource "azurerm_container_registry" "acr" {
       }
     ]
   }
+
+  # identity {
+  #   type         = var.identity.type
+  #   identity_ids = var.identity.identity_ids
+  # }
+  #
+  # encryption {
+  #   key_vault_key_id   = var.encryption.kv_id
+  #   identity_client_id = var.encryption.identity_client_id
+  # }
 }
